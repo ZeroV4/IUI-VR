@@ -51,6 +51,8 @@ public class CoffeeTask : MonoBehaviour
         }
 
         // Count time only while pouring AND ray hits the cup mouth
+        // [Usability] Progress is no longer wiped when the stream misses the cup for a moment.
+        // Only ResetTask (the Coffee Reset button) sets pouringSeconds back to 0.
         if (pouring && RayHitsCupMouth())
         {
             pouringSeconds += Time.deltaTime;
@@ -60,10 +62,6 @@ public class CoffeeTask : MonoBehaviour
                 SetParticles(false);
                 Debug.Log("Coffee task COMPLETE");
             }
-        }
-        else
-        {
-            pouringSeconds = 0f;
         }
     }
 

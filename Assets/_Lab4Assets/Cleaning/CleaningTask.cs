@@ -63,4 +63,20 @@ public class CleaningTask : MonoBehaviour
         }
     }
 
+    // [Usability] Called by the Cleaning Reset button, next to CleaningTaskController.ResetTask.
+    // Before this, resetting only moved the sponge back; the wiped spots stayed wiped.
+    public void ResetProgress()
+    {
+        if (touched != null)
+        {
+            for (int i = 0; i < touched.Length; i++)
+                touched[i] = false;
+        }
+        touchedCount = 0;
+
+        // same rule as Start(): no zones means already complete
+        cleaningTask = (targets == null || targets.Length == 0);
+        Debug.Log("[CleaningReset] Zone progress cleared.");
+    }
+
 }

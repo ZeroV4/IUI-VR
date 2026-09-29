@@ -54,6 +54,16 @@ public class TrashBinScorer : MonoBehaviour
         UpdateCompletion();
     }
 
+    // [Usability] Called by the Trash Reset button, next to TrashRespawner.RespawnAll.
+    // Before this, resetting respawned the trash but kept the old score.
+    public void ResetScore()
+    {
+        score = 0;
+        counted.Clear();
+        UpdateCompletion(); // score is 0, so IsComplete becomes false
+        Debug.Log("Trash: score reset");
+    }
+
     // check if the task is completed
     // DO NOT CHANGE
     private void UpdateCompletion()
