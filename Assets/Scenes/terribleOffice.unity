@@ -5585,6 +5585,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 167457188}
+        m_TargetAssemblyTypeName: ResetFeedback, Assembly-CSharp
+        m_MethodName: Show
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Drawers
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!222 &157148810
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6041,9 +6053,9 @@ MonoBehaviour:
   pourParticles: {fileID: 63341907}
   cupMouth: {fileID: 1736882756}
   rayDistance: 10
-  angleOnDeg: 25
-  angleOffDeg: 45
-  requiredSeconds: 0.3
+  angleOnDeg: 45
+  angleOffDeg: 60
+  requiredSeconds: 2.5
 --- !u!4 &215609502
 Transform:
   m_ObjectHideFlags: 0
@@ -8006,6 +8018,30 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1144517563}
+        m_TargetAssemblyTypeName: CleaningTask, Assembly-CSharp
+        m_MethodName: ResetProgress
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 167457188}
+        m_TargetAssemblyTypeName: ResetFeedback, Assembly-CSharp
+        m_MethodName: Show
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Cleaning
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!222 &547172188
@@ -10974,7 +11010,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.9019608}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11923,6 +11959,18 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 167457188}
+        m_TargetAssemblyTypeName: ResetFeedback, Assembly-CSharp
+        m_MethodName: Show
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Coffee
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!222 &1508461978
@@ -16849,25 +16897,27 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Welcome to Lab 4: A Terrible Day in the Office
 
-
     To finish your working
     day, you need to complete the following tasks:
+
 
     - File all files in their
     correct drawers
 
+
     - Throw the trash in the bin
+
 
     - Pour yourself a full
     cup of coffee
 
-    - Wipe your desk clean with the sponge
+
+    - Wipe your desk clean with the sponge ( I WANT TO KMS)
 
 
-
-    You can start
-    completing the tasks once you click the start button, once all tasks are completed,
-    press the quit button.'
+    You
+    can start completing the tasks once you click the start button, once all tasks
+    are completed, press the quit button.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
   m_sharedMaterial: {fileID: 4687939059374929122, guid: f675742eaf9c20a4f909d78ee7a14fed, type: 2}
@@ -16898,8 +16948,8 @@ MonoBehaviour:
   m_fontSizeBase: 13
   m_fontWeight: 400
   m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMin: 8
+  m_fontSizeMax: 13
   m_fontStyle: 0
   m_HorizontalAlignment: 8
   m_VerticalAlignment: 256
