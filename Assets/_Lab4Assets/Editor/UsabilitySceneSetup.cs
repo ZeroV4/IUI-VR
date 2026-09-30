@@ -317,13 +317,10 @@ public static class UsabilitySceneSetup
         var buttons = uiRoot.transform.Find("Buttons");
         var mainText = uiRoot.transform.Find("MainText").GetComponent<TMP_Text>();
 
-        // Opaque panel. The window glass was also drawn on top of the panel (UI writes no depth),
-        // so it looked see-through; a higher sorting order draws the menu after the glass.
+        // The window glass was drawn on top of the panel (UI writes no depth), so it looked see-through.
+        // A higher sorting order draws the menu after the glass. (The background itself must not be changed.)
         canvas.sortingOrder = 10;
         EditorUtility.SetDirty(canvas);
-        var background = uiRoot.transform.Find("X - Background").GetComponent<Image>();
-        background.color = new Color(0, 0, 0, 1);
-        EditorUtility.SetDirty(background);
 
         // Instructions: fixed box above the Reset row; the text shrinks to fit instead of running over the buttons
         var fitter = mainText.GetComponent<ContentSizeFitter>();

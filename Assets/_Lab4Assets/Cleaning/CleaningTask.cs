@@ -59,7 +59,7 @@ public class CleaningTask : MonoBehaviour
             {
                 touched[i] = true;
                 touchedCount++;
-                Debug.Log($"Touched a cleaning spot ({touchedCount}/{targets.Length})");
+                Debug.Log("Touched a cleaning spot");
 
                 // [Usability] The dirt mark on this spot disappears, so the player sees what is left
                 SetDirtVisible(targets[i], false);

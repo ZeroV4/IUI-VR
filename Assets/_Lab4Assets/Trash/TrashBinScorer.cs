@@ -84,7 +84,7 @@ public class TrashBinScorer : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Trash: rejected (speed {speed:F1}, dist {dist:F2}, t {since:F1}s, down {downward}) -> \"{reason}\"");
+            Debug.Log($"Trash: rejected (speed {speed:F1}, dist {dist:F2}, t {since:F1}s, down {downward})");
             ShowMessage(reason);
         }
 

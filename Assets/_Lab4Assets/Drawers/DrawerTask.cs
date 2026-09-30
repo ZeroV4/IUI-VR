@@ -158,10 +158,6 @@ public class DrawerTask : MonoBehaviour
     // If you change this behaviour, ensure to keep the current lines
     public void ResetState()
     {
-        // [Usability] Clear a red "wrong colour" message that may still be showing
-        CancelInvoke(nameof(EndWrongMessage));
-        showingWrong = false;
-
         IsComplete = false;
         Recompute(); // will recompute from empty sockets after we clear them in the controller
     }
