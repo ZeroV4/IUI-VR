@@ -109,7 +109,7 @@ public static class UsabilitySceneSetup
         EditorUtility.SetDirty(canvas);
 
         // the top of the menu is solid but the bottom background is 90 percent, so you could see through half of it
-        // copy of the bottom background at full colour, the original X - Background stays as it is
+        // copy of the bottom background at full colour, the original background stays as it is
         var background = uiRoot.transform.Find("X - Background");
         var solid = uiRoot.transform.Find("Solid Background");
         if (!solid)
