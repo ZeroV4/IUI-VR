@@ -37,10 +37,10 @@ public class RunSummaryOnQuit : MonoBehaviour
     [Header("Behavior")]
     public float delaySeconds = 10f;           // countdown before quit
 
-    // [Usability] Quit needs a second press, so one stray poke does not end the whole run
-    [Header("Quit confirmation (added for usability)")]
+    // usability: quit needs a second press so one stray click does not end the whole run
+    [Header("Quit confirmation")]
     public TMP_Text quitButtonLabel;           // the text on the Quit button
-    public float confirmSeconds = 3f;          // time window for the second press
+    public float confirmSeconds = 3f;          // time you have for the second press
 
     string _path;
     float confirmUntil = -1f;
@@ -49,32 +49,30 @@ public class RunSummaryOnQuit : MonoBehaviour
     void Awake()
     {
         _path = Path.Combine(Application.persistentDataPath, fileName);
-        if (quitButtonLabel) quitLabelDefault = quitButtonLabel.text; // [Usability]
+        // usability: remember the normal label so we can put it back
+        if (quitButtonLabel) quitLabelDefault = quitButtonLabel.text;
     }
 
-    /// [Usability] Call this from the Quit button: the first press asks, a second press within confirmSeconds quits
+    // usability: put this on the quit button. first press asks, second press within confirmSeconds quits
     public void ConfirmThenQuit()
     {
         if (Time.unscaledTime <= confirmUntil)
         {
-            Debug.Log("[Quit] confirmed");
             CancelInvoke(nameof(EndConfirmWindow));
             ShowSummaryThenQuit();
             return;
         }
 
         confirmUntil = Time.unscaledTime + confirmSeconds;
-        Debug.Log("[Quit] waiting for confirmation");
         if (quitButtonLabel) quitButtonLabel.text = "Press again\nto quit";
 
         CancelInvoke(nameof(EndConfirmWindow));
         Invoke(nameof(EndConfirmWindow), confirmSeconds);
     }
 
-    // [Usability] The player did not press again: put the normal label back
+    // usability: you did not press again so the normal label comes back
     void EndConfirmWindow()
     {
-        Debug.Log("[Quit] cancelled (no second press)");
         if (quitButtonLabel) quitButtonLabel.text = quitLabelDefault;
     }
 

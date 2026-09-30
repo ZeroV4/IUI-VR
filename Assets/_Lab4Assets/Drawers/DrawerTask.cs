@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
@@ -19,17 +18,6 @@ public class DrawerTask : MonoBehaviour
     public float ErrorRate => totalInserts > 0 ? (float)wrongInserts / totalInserts : 0f; //note: not used in final version
 
     public bool IsComplete { get; private set; }
-
-    // [Usability] Number of sockets holding a correct file (the menu checklist reads it)
-    public int MatchedCount { get; private set; }
-
-    // [Usability] Feedback shown to the player in the world (logs are not visible in the headset)
-    [Header("Feedback (added for usability)")]
-    public TMP_Text countText;               // "0/4" text on the drawer front
-    public FeedbackSounds sounds;            // shared success / error sounds
-    public float wrongMessageSeconds = 2f;   // how long the red message stays
-
-    private bool showingWrong;
 
     // DO NOT CHANGE THIS METHOD
     void OnEnable()
@@ -62,7 +50,6 @@ public class DrawerTask : MonoBehaviour
         totalInserts++;
 
         // we get the the selected item and check whether its what we expected
-        bool wrong = false;
         var selected = args.interactableObject?.transform;
         if (selected)
         {
@@ -70,15 +57,12 @@ public class DrawerTask : MonoBehaviour
             if (!fi || fi.fileType != expectedType)
             {
                 wrongInserts++;
-                wrong = true;
+                // usability: error sound so you notice the file went in the wrong drawer
+                GetComponent<AudioSource>().Play();
             }
         }
 
         Recompute();
-
-        // [Usability] Before, a wrong file sat in the drawer without any feedback.
-        // Called after Recompute, so the count refresh does not hide the message.
-        if (wrong) ShowWrongInsert();
     }
 
     // called when something exited a socket
@@ -103,8 +87,6 @@ public class DrawerTask : MonoBehaviour
                 matched++;
         }
 
-        MatchedCount = matched; // [Usability]
-
         bool nowComplete = matched >= requiredCount;
 
         // If the task was not yet complete, print message
@@ -112,7 +94,6 @@ public class DrawerTask : MonoBehaviour
         {
             IsComplete = true;
             Debug.Log($"{taskName}: COMPLETED ({matched}/{requiredCount}) | errorRate={ErrorRate:P1}");
-            if (sounds) sounds.Success(); // [Usability]
         }
         // If task was complete before, and not anymore
         else if (!nowComplete && IsComplete)
@@ -120,37 +101,6 @@ public class DrawerTask : MonoBehaviour
             IsComplete = false;
             Debug.Log($"{taskName}: no longer complete ({matched}/{requiredCount})");
         }
-
-        ShowCount(); // [Usability]
-    }
-
-    // [Usability] Progress text on the drawer front: white while in progress, green when done
-    void ShowCount()
-    {
-        if (!countText || showingWrong) return;
-        countText.text = $"{MatchedCount}/{requiredCount}";
-        countText.color = IsComplete ? Color.green : Color.white;
-    }
-
-    // [Usability] Red message + error sound for a few seconds, then back to the count
-    void ShowWrongInsert()
-    {
-        Debug.Log($"{taskName}: wrong file inserted ({wrongInserts} wrong so far)");
-        if (sounds) sounds.Error();
-        if (!countText) return;
-
-        showingWrong = true;
-        countText.text = "Wrong colour!\nTake it out";
-        countText.color = Color.red;
-
-        CancelInvoke(nameof(EndWrongMessage));
-        Invoke(nameof(EndWrongMessage), wrongMessageSeconds);
-    }
-
-    void EndWrongMessage()
-    {
-        showingWrong = false;
-        ShowCount();
     }
 
     // --- Reset pattern ---

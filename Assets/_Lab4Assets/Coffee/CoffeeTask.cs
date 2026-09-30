@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables; // XRGrabInteractable
 
@@ -26,43 +25,12 @@ public class CoffeeTask : MonoBehaviour
     public float requiredSeconds = 0.3f;    // time hitting cup to complete
     public bool IsComplete { get; private set; }
 
-    // [Usability] 0 = empty cup, 1 = full cup (the menu checklist reads it)
-    public float Progress01
-    {
-        get
-        {
-            if (IsComplete) return 1f;
-            if (requiredSeconds <= 0f) return 0f;
-            return Mathf.Clamp01(pouringSeconds / requiredSeconds);
-        }
-    }
-
-    // [Usability] Feedback shown to the player in the world (logs are not visible in the headset)
-    [Header("Feedback (added for usability)")]
-    public Transform coffeeLevel;     // empty object at the inside bottom of the cup; its Y scale grows while pouring
-    public TMP_Text statusText;       // "Coffee 40%" / "Coffee ready!" above the cup
-    public FeedbackSounds sounds;     // shared success / error sounds
-
     // State
     float pouringSeconds;
     bool pouring;
 
-    // [Usability] What the feedback currently shows, so we only update it when something changed
-    Vector3 levelFullScale = Vector3.one;
-    int shownPercent = -1;
-
-    void Awake()
-    {
-        // [Usability] The scale set in the Editor is the "full cup" scale
-        if (coffeeLevel) levelFullScale = coffeeLevel.localScale;
-        if (statusText) statusText.text = "";
-    }
-
     void Update()
     {
-        // [Usability] Runs first, also after ResetTask (locked), so the visuals always follow the state
-        UpdateFeedback();
-
         if (IsComplete || !mokaPot || !spoutTip || !pourParticles) return;
 
         bool held = mokaPot.isSelected;
@@ -83,8 +51,6 @@ public class CoffeeTask : MonoBehaviour
         }
 
         // Count time only while pouring AND ray hits the cup mouth
-        // [Usability] Progress is no longer wiped when the stream misses the cup for a moment.
-        // Only ResetTask (the Coffee Reset button) sets pouringSeconds back to 0.
         if (pouring && RayHitsCupMouth())
         {
             pouringSeconds += Time.deltaTime;
@@ -93,51 +59,13 @@ public class CoffeeTask : MonoBehaviour
                 IsComplete = true;
                 SetParticles(false);
                 Debug.Log("Coffee task COMPLETE");
+                // usability: sound when the cup is full, you could not tell when to stop pouring
+                GetComponent<AudioSource>().Play();
             }
         }
-    }
-
-    // [Usability] Before, the player could not see how much longer to pour, or whether the task finished.
-    // Now the coffee rises in the cup and a text above the cup shows the progress.
-    void UpdateFeedback()
-    {
-        // 100 only when the task is really complete (99.6% must not show as 100%)
-        int percent = IsComplete ? 100 : Mathf.Min(99, Mathf.FloorToInt(Progress01 * 100f));
-        if (percent == shownPercent) return;
-
-        bool justCompleted = percent == 100 && shownPercent != -1;
-        shownPercent = percent;
-
-        // coffee level in the cup
-        if (coffeeLevel)
+        else
         {
-            coffeeLevel.gameObject.SetActive(percent > 0);
-            coffeeLevel.localScale = new Vector3(levelFullScale.x, levelFullScale.y * Progress01, levelFullScale.z);
-        }
-
-        // text above the cup
-        if (statusText)
-        {
-            if (IsComplete)
-            {
-                statusText.text = "Coffee ready!";
-                statusText.color = Color.green;
-            }
-            else if (percent > 0)
-            {
-                statusText.text = $"Coffee {percent}%";
-                statusText.color = Color.white;
-            }
-            else
-            {
-                statusText.text = "";
-            }
-        }
-
-        if (justCompleted)
-        {
-            Debug.Log("Coffee: feedback ready");
-            if (sounds) sounds.Success();
+            pouringSeconds = 0f;
         }
     }
 

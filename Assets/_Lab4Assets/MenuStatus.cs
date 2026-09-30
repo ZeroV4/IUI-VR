@@ -1,18 +1,14 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
-// [Usability] New script. Lives on UI Root/Buttons.
-// 1) The Reset buttons are greyed out until Start. Before, pressing Drawers Reset before Start
-//    spawned files that were never locked.
-// 2) After Start, the long instructions are replaced by a live task checklist with progress.
-// Quit hides Buttons, which stops this Update, so RunSummaryOnQuit can write its summary into the same text.
+// usability: new script on UI Root/Buttons. after Start the long instructions turn into a task checklist
+// so you can see what is done and what is left
+// quit hides Buttons, that stops this Update so the summary can use the same text
 public class MenuStatus : MonoBehaviour
 {
     [Header("Hook these up")]
     public GameRunController runController;
     public TMP_Text instructionsText;      // UI Root/MainText
-    public Button[] resetButtons;          // the 4 Reset buttons
 
     [Header("Tasks")]
     public DrawerTask drawerA;
@@ -21,102 +17,69 @@ public class MenuStatus : MonoBehaviour
     public CoffeeTask coffeeTask;
     public CleaningTask cleaningTask;
 
-    bool unlocked;
-    string lastText;
     float nextRefreshTime;
-
-    void Start()
-    {
-        SetResetButtons(false);
-    }
 
     void Update()
     {
-        if (!runController || !runController.Started) return;
+        if (!runController || !runController.Started || !instructionsText) return;
 
-        if (!unlocked)
-        {
-            unlocked = true;
-            SetResetButtons(true);
-        }
-
-        if (!instructionsText) return;
-
-        // rebuilding the text 5 times per second is enough, and cheaper on the Quest than every frame
+        // usability: 5 times a second is enough, no need to rebuild the text every frame on the quest
         if (Time.time < nextRefreshTime) return;
         nextRefreshTime = Time.time + 0.2f;
 
-        string text = BuildChecklist();
-        if (text == lastText) return; // only touch the text when something changed
-        lastText = text;
-        instructionsText.text = text;
-    }
-
-    void SetResetButtons(bool interactable)
-    {
-        foreach (var button in resetButtons)
-        {
-            if (button) button.interactable = interactable;
-        }
-        Debug.Log(interactable ? "[MenuStatus] Reset buttons enabled" : "[MenuStatus] Reset buttons disabled until Start");
+        instructionsText.text = BuildChecklist();
     }
 
     string BuildChecklist()
     {
         string text = "<b>Tasks</b>\n\n";
-        int done = 0;
-        int total = 0;
+        bool allDone = true;
 
         if (drawerA)
         {
-            total++;
-            if (drawerA.IsComplete) done++;
-            text += Line(drawerA.IsComplete, DrawerLabel(drawerA), $"{drawerA.MatchedCount}/{drawerA.requiredCount}");
+            text += Line(drawerA.IsComplete, DrawerLabel(drawerA));
+            if (!drawerA.IsComplete) allDone = false;
         }
         if (drawerB)
         {
-            total++;
-            if (drawerB.IsComplete) done++;
-            text += Line(drawerB.IsComplete, DrawerLabel(drawerB), $"{drawerB.MatchedCount}/{drawerB.requiredCount}");
+            text += Line(drawerB.IsComplete, DrawerLabel(drawerB));
+            if (!drawerB.IsComplete) allDone = false;
         }
         if (trashTask)
         {
-            total++;
-            if (trashTask.IsComplete) done++;
-            text += Line(trashTask.IsComplete, "Throw the can and the bottle in the bin", $"{trashTask.score}/{TrashBinScorer.RequiredScore}");
+            text += Line(trashTask.IsComplete, "Throw the can and the bottle in the bin");
+            if (!trashTask.IsComplete) allDone = false;
         }
         if (coffeeTask)
         {
-            total++;
-            if (coffeeTask.IsComplete) done++;
-            text += Line(coffeeTask.IsComplete, "Pour a full cup of coffee", $"{Mathf.FloorToInt(coffeeTask.Progress01 * 100f)}%");
+            text += Line(coffeeTask.IsComplete, "Pour a full cup of coffee");
+            if (!coffeeTask.IsComplete) allDone = false;
         }
         if (cleaningTask)
         {
-            total++;
-            if (cleaningTask.IsComplete) done++;
-            text += Line(cleaningTask.IsComplete, "Wipe the brown spots with the sponge", $"{cleaningTask.TouchedCount}/{cleaningTask.TargetCount}");
+            text += Line(cleaningTask.IsComplete, "Wipe the 5 spots along the desk");
+            if (!cleaningTask.IsComplete) allDone = false;
         }
 
-        if (done == total)
+        if (allDone)
             text += "\n<color=#00FF00><b>All done! Press Quit.</b></color>";
         else
-            text += $"\n{done}/{total} done. Press Quit when all tasks are done.";
+            text += "\nPress Quit when all tasks are done.";
         return text;
     }
 
-    // One checklist line: green with [x] when done, otherwise [ ] with the progress in grey
-    static string Line(bool complete, string label, string progress)
+    // usability: done tasks get a green [x], the rest stay [ ]
+    static string Line(bool complete, string label)
     {
         if (complete)
             return $"<color=#00FF00>[x] {label}</color>\n";
-        return $"[ ] {label}  <color=#AAAAAA>{progress}</color>\n";
+        return $"[ ] {label}\n";
     }
 
     static string DrawerLabel(DrawerTask drawer)
     {
         if (drawer.expectedType == FileType.LightGreen)
-            return "Light green files into the LIGHT GREEN drawer";
-        return "Dark green files into the DARK GREEN drawer";
+            return "Light green files into the light green drawer";
+        return "Dark green files into the dark green drawer";
     }
 }

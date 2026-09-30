@@ -1,9 +1,9 @@
 using TMPro;
 using UnityEngine;
 
-// [Usability] New script. Shows a short "<task> reset ✓" message on the menu,
-// so the player can see that a Reset button actually did something.
-// Each Reset button calls Show("<task name>") from its OnClick list.
+// usability: new script. shows "task reset" on the menu for a moment
+// so you can see the reset button actually did something
+// each reset button calls Show("task name") from its OnClick list
 public class ResetFeedback : MonoBehaviour
 {
     [Header("Hook these up")]
@@ -19,12 +19,12 @@ public class ResetFeedback : MonoBehaviour
 
     public void Show(string taskName)
     {
-        Debug.Log($"[ResetFeedback] {taskName} reset");
         if (!statusText) return;
 
-        statusText.text = $"{taskName} reset ✓";
+        // usability: plain text, the font has no tick mark and showed a box
+        statusText.text = $"{taskName} reset";
 
-        // restart the timer if another Reset is pressed while the message is showing
+        // start the timer again if you press another reset while the message is up
         CancelInvoke(nameof(Hide));
         Invoke(nameof(Hide), visibleSeconds);
     }

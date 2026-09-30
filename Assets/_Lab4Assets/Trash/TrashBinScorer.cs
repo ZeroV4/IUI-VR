@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
 public class TrashBinScorer : MonoBehaviour
 {
@@ -19,132 +19,72 @@ public class TrashBinScorer : MonoBehaviour
     public int score;
     public bool IsComplete { get; private set; }  // <-- new property
 
+    // usability: text above the bin that shows how many items went in
+    public TMP_Text progressText;
+
     private HashSet<TrashItemThrowData> counted = new();
-
-    // [Usability] Feedback shown to the player in the world (logs are not visible in the headset)
-    [Header("Feedback (added for usability)")]
-    public TMP_Text statusText;              // "Trash 1/2" text above the bin
-    public FeedbackSounds sounds;            // shared success / error sounds
-    public GameRunController runController;  // used to ignore throws before Start
-    public float messageSeconds = 2f;        // how long a red message stays
-
-    public const int RequiredScore = 2;      // same number as in UpdateCompletion (locked)
-    private bool showingMessage;
 
     // DO NOT CHANGE
     void Reset() { scoreZone = GetComponent<Collider>(); }
 
-    // [Usability] Show "Trash 0/2" as soon as the scene starts
-    void Start()
-    {
-        ShowCount();
-    }
-
     // called when something enters the scorecollider
     void OnTriggerEnter(Collider other)
-    {
+    {   
         Debug.Log("Something entered the bin");
         // check what the other rigidbody is
         var rb = other.attachedRigidbody;
         if (!rb) return;
 
         var data = rb.GetComponent<TrashItemThrowData>();
-
-        // [Usability] Before, anything that was not trash was ignored silently
-        if (!data)
-        {
-            ShowMessage("Only the can and bottle count");
-            return;
-        }
-        if (counted.Contains(data)) return;
-
-        // [Usability] Trash is not locked before Start, so throws before Start used to count
-        if (runController && !runController.Started)
-        {
-            ShowMessage("Press Start first");
-            return;
-        }
-
+        if (!data || counted.Contains(data)) return;
+        
         float since = Time.time - data.releaseTime;
         float speed = data.releaseVel.magnitude;
         var center = rimCenter ? rimCenter.position : transform.position;
         float dist = Vector3.Distance(data.releasePos, center);
         bool downward = !requireDownwardEntry || Vector3.Dot(rb.linearVelocity.normalized, Vector3.down) > 0.2f;
 
-        // [Usability] Same rules as before, but now we know WHICH rule failed,
-        // so we can tell the player what to do differently
-        string reason = GetRejectReason(since, speed, dist, downward);
-
-        if (reason == null)
+        if (since <= maxSecondsSinceRelease && speed >= minReleaseSpeed && dist >= minReleaseDistance && downward)
         {
             score++;
             counted.Add(data);
             Debug.Log($"Trash: SCORE #{score} (speed {speed:F1}, dist {dist:F2}, t {since:F1}s)");
-            if (sounds) sounds.Success();
+            // usability: sound when a throw counts
+            GetComponent<AudioSource>().Play();
         }
         else
         {
             Debug.Log($"Trash: rejected (speed {speed:F1}, dist {dist:F2}, t {since:F1}s, down {downward})");
-            ShowMessage(reason);
         }
 
         UpdateCompletion();
-        ShowCount();
+        ShowProgress();
     }
 
-    // [Usability] Returns the first rule that failed, in words the player understands.
-    // Returns null when the throw counts.
-    string GetRejectReason(float since, float speed, float dist, bool downward)
-    {
-        if (since > maxSecondsSinceRelease) return "Throw it straight in";
-        if (speed < minReleaseSpeed) return "Throw harder";
-        if (dist < minReleaseDistance) return "Step back and throw";
-        if (!downward) return "Throw it in from above";
-        return null;
-    }
-
-    // [Usability] Called by the Trash Reset button, next to TrashRespawner.RespawnAll.
-    // Before this, resetting respawned the trash but kept the old score.
+    // usability: trash reset respawned the items but kept the old score, this puts it back to 0
     public void ResetScore()
     {
         score = 0;
         counted.Clear();
-        UpdateCompletion(); // score is 0, so IsComplete becomes false
-        Debug.Log("Trash: score reset");
-
-        // clear any red message and show "Trash 0/2" again
-        CancelInvoke(nameof(EndMessage));
-        showingMessage = false;
-        ShowCount();
+        UpdateCompletion();
+        ShowProgress();
     }
 
-    // [Usability] Progress text: white while in progress, green when done
-    void ShowCount()
+    // usability: shows 1/2 while throwing and goes green when both are in
+    void ShowProgress()
     {
-        if (!statusText || showingMessage) return;
-        statusText.text = $"Trash {score}/{RequiredScore}";
-        statusText.color = IsComplete ? Color.green : Color.white;
-    }
+        if (!progressText) return;
 
-    // [Usability] Red message + error sound for a few seconds, then back to the count
-    void ShowMessage(string message)
-    {
-        Debug.Log($"Trash: feedback \"{message}\"");
-        if (sounds) sounds.Error();
-        if (!statusText) return;
-
-        showingMessage = true;
-        statusText.text = message;
-        statusText.color = Color.red;
-
-        CancelInvoke(nameof(EndMessage));
-        Invoke(nameof(EndMessage), messageSeconds);
-    }
-
-    void EndMessage()
-    {
-        showingMessage = false;
-        ShowCount();
+        if (IsComplete)
+        {
+            progressText.text = "Trash done!";
+            progressText.color = Color.green;
+        }
+        else
+        {
+            progressText.text = $"Trash {score}/2";
+            progressText.color = Color.white;
+        }
     }
 
     // check if the task is completed

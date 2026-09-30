@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 /**
 This class handles the logic of the cleaning task
@@ -18,13 +19,8 @@ public class CleaningTask : MonoBehaviour
     public bool cleaningTask;        // True when all zones touched
     public bool IsComplete { get { return cleaningTask; } }
 
-    // [Usability] Progress numbers (the menu checklist reads them)
-    public int TouchedCount { get { return touchedCount; } }
-    public int TargetCount { get { return targets != null ? targets.Length : 0; } }
-
-    // [Usability] Success sound when every spot is clean
-    [Header("Feedback (added for usability)")]
-    public FeedbackSounds sounds;
+    // usability: text above the desk that shows how many spots are clean
+    public TMP_Text progressText;
 
     // Internal fields
     private bool[] touched;
@@ -59,53 +55,46 @@ public class CleaningTask : MonoBehaviour
             {
                 touched[i] = true;
                 touchedCount++;
+                // usability: sound when a spot gets cleaned so you know it counted
+                GetComponent<AudioSource>().Play();
                 Debug.Log("Touched a cleaning spot");
-
-                // [Usability] The dirt mark on this spot disappears, so the player sees what is left
-                SetDirtVisible(targets[i], false);
 
                 if (touchedCount == targets.Length)
                 {
                     cleaningTask = true;
                     Debug.Log("Cleaning task COMPLETE: all zones touched.");
-                    if (sounds) sounds.Success(); // [Usability]
                 }
+                ShowProgress();
                 break;
             }
         }
     }
 
-    // [Usability] Called by the Cleaning Reset button, next to CleaningTaskController.ResetTask.
-    // Before this, resetting only moved the sponge back; the wiped spots stayed wiped.
+    // usability: reset only moved the sponge back, this clears the cleaned spots too
     public void ResetProgress()
     {
-        if (touched != null)
-        {
-            for (int i = 0; i < touched.Length; i++)
-                touched[i] = false;
-        }
+        for (int i = 0; i < touched.Length; i++)
+            touched[i] = false;
         touchedCount = 0;
-
-        // same rule as Start(): no zones means already complete
-        cleaningTask = (targets == null || targets.Length == 0);
-
-        // [Usability] Show all dirt marks again
-        if (targets != null)
-        {
-            foreach (var target in targets)
-                SetDirtVisible(target, true);
-        }
-
-        Debug.Log("[CleaningReset] Zone progress cleared.");
+        cleaningTask = (touched.Length == 0);
+        ShowProgress();
     }
 
-    // [Usability] The dirt marks are the child objects of each target zone (added in the Editor).
-    // Before, the zones were invisible, so the player could not see where to wipe.
-    static void SetDirtVisible(Collider target, bool visible)
+    // usability: shows 2/5 while cleaning and goes green when the whole desk is done
+    void ShowProgress()
     {
-        if (!target) return;
-        foreach (Transform child in target.transform)
-            child.gameObject.SetActive(visible);
+        if (!progressText) return;
+
+        if (cleaningTask)
+        {
+            progressText.text = "Desk clean!";
+            progressText.color = Color.green;
+        }
+        else
+        {
+            progressText.text = $"Desk {touchedCount}/{touched.Length} clean";
+            progressText.color = Color.white;
+        }
     }
 
 }
