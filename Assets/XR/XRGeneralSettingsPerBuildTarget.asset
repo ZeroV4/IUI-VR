@@ -29,7 +29,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d236b7d11115f2143951f1e14045df39, type: 3}
   m_Name: Standalone Settings
   m_EditorClassIdentifier: 
-  m_LoaderManagerInstance: {fileID: -8604562198415543160}
+  m_Manager: {fileID: -8604562198415543160}
   m_InitManagerOnStart: 1
 --- !u!114 &-3569524218239896860
 MonoBehaviour:
@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d236b7d11115f2143951f1e14045df39, type: 3}
   m_Name: Android Settings
   m_EditorClassIdentifier: 
-  m_LoaderManagerInstance: {fileID: 4220948377740803215}
+  m_Manager: {fileID: 4220948377740803215}
   m_InitManagerOnStart: 1
 --- !u!114 &11400000
 MonoBehaviour:
@@ -57,10 +57,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2dc886499c26824283350fa532d087d, type: 3}
   m_Name: XRGeneralSettingsPerBuildTarget
   m_EditorClassIdentifier: 
-  Keys: 0700000001000000
-  Values:
-  - {fileID: -3569524218239896860}
-  - {fileID: -5579998152212288110}
+  Keys: 
+  Values: []
+  m_SettingsPerBuildTarget:
+  - buildTarget: 7
+    settings: {fileID: -3569524218239896860}
+  - buildTarget: 1
+    settings: {fileID: -5579998152212288110}
 --- !u!114 &4220948377740803215
 MonoBehaviour:
   m_ObjectHideFlags: 0

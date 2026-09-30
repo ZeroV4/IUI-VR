@@ -66,5 +66,5 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "IUI_HCI_VR_Lab-main.sln"
+    "dotnet.defaultSolution": "IUI_HCI_VR_Lab-main.slnx"
 }
