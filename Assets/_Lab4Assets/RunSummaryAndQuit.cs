@@ -37,11 +37,45 @@ public class RunSummaryOnQuit : MonoBehaviour
     [Header("Behavior")]
     public float delaySeconds = 10f;           // countdown before quit
 
+    // [Usability] Quit needs a second press, so one stray poke does not end the whole run
+    [Header("Quit confirmation (added for usability)")]
+    public TMP_Text quitButtonLabel;           // the text on the Quit button
+    public float confirmSeconds = 3f;          // time window for the second press
+
     string _path;
+    float confirmUntil = -1f;
+    string quitLabelDefault;
 
     void Awake()
     {
         _path = Path.Combine(Application.persistentDataPath, fileName);
+        if (quitButtonLabel) quitLabelDefault = quitButtonLabel.text; // [Usability]
+    }
+
+    /// [Usability] Call this from the Quit button: the first press asks, a second press within confirmSeconds quits
+    public void ConfirmThenQuit()
+    {
+        if (Time.unscaledTime <= confirmUntil)
+        {
+            Debug.Log("[Quit] confirmed");
+            CancelInvoke(nameof(EndConfirmWindow));
+            ShowSummaryThenQuit();
+            return;
+        }
+
+        confirmUntil = Time.unscaledTime + confirmSeconds;
+        Debug.Log("[Quit] waiting for confirmation");
+        if (quitButtonLabel) quitButtonLabel.text = "Press again\nto quit";
+
+        CancelInvoke(nameof(EndConfirmWindow));
+        Invoke(nameof(EndConfirmWindow), confirmSeconds);
+    }
+
+    // [Usability] The player did not press again: put the normal label back
+    void EndConfirmWindow()
+    {
+        Debug.Log("[Quit] cancelled (no second press)");
+        if (quitButtonLabel) quitButtonLabel.text = quitLabelDefault;
     }
 
     /// Call this from Quit button
