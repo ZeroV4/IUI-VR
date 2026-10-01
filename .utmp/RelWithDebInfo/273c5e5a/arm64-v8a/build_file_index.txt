@@ -1,0 +1,2 @@
+/home/zero/Workspace/UNI/IUI/IUI_HCI_VR_Lab-main/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/CMakeLists.txt
+/home/zero/Workspace/UNI/IUI/IUI_HCI_VR_Lab-main/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/GameActivity/CMakeLists.txt

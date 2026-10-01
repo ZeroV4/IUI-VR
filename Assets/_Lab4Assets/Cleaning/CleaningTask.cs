@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 /**
 This class handles the logic of the cleaning task
@@ -17,6 +18,12 @@ public class CleaningTask : MonoBehaviour
     [Header("State")]
     public bool cleaningTask;        // True when all zones touched
     public bool IsComplete { get { return cleaningTask; } }
+
+    // usability: text above the desk that shows how many spots are clean
+    public TMP_Text progressText;
+
+    // usability: brown dirt spot on each zone, same order as targets, it disappears when you clean it
+    public GameObject[] dirtSpots;
 
     // Internal fields
     private bool[] touched;
@@ -51,6 +58,9 @@ public class CleaningTask : MonoBehaviour
             {
                 touched[i] = true;
                 touchedCount++;
+                // usability: sound when a spot gets cleaned so you know it counted
+                GetComponent<AudioSource>().Play();
+                if (i < dirtSpots.Length) dirtSpots[i].SetActive(false);
                 Debug.Log("Touched a cleaning spot");
 
                 if (touchedCount == targets.Length)
@@ -58,8 +68,40 @@ public class CleaningTask : MonoBehaviour
                     cleaningTask = true;
                     Debug.Log("Cleaning task COMPLETE: all zones touched.");
                 }
+                ShowProgress();
                 break;
             }
+        }
+    }
+
+    // usability: reset only moved the sponge back, this clears the cleaned spots too
+    public void ResetProgress()
+    {
+        for (int i = 0; i < touched.Length; i++)
+        {
+            touched[i] = false;
+            // usability: bring the dirt back so you can clean again
+            if (i < dirtSpots.Length) dirtSpots[i].SetActive(true);
+        }
+        touchedCount = 0;
+        cleaningTask = (touched.Length == 0);
+        ShowProgress();
+    }
+
+    // usability: shows 2/5 while cleaning and goes green when the whole desk is done
+    void ShowProgress()
+    {
+        if (!progressText) return;
+
+        if (cleaningTask)
+        {
+            progressText.text = "Desk clean!";
+            progressText.color = Color.green;
+        }
+        else
+        {
+            progressText.text = $"Desk {touchedCount}/{touched.Length} clean";
+            progressText.color = Color.white;
         }
     }
 
