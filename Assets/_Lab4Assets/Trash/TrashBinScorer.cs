@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class TrashBinScorer : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class TrashBinScorer : MonoBehaviour
     [Header("State")]
     public int score;
     public bool IsComplete { get; private set; }  // <-- new property
+
+    // usability: text above the bin that shows how many items went in
+    public TMP_Text progressText;
 
     private HashSet<TrashItemThrowData> counted = new();
 
@@ -45,6 +49,8 @@ public class TrashBinScorer : MonoBehaviour
             score++;
             counted.Add(data);
             Debug.Log($"Trash: SCORE #{score} (speed {speed:F1}, dist {dist:F2}, t {since:F1}s)");
+            // usability: sound when a throw counts
+            GetComponent<AudioSource>().Play();
         }
         else
         {
@@ -52,6 +58,33 @@ public class TrashBinScorer : MonoBehaviour
         }
 
         UpdateCompletion();
+        ShowProgress();
+    }
+
+    // usability: trash reset respawned the items but kept the old score, this puts it back to 0
+    public void ResetScore()
+    {
+        score = 0;
+        counted.Clear();
+        UpdateCompletion();
+        ShowProgress();
+    }
+
+    // usability: shows 1/2 while throwing and goes green when both are in
+    void ShowProgress()
+    {
+        if (!progressText) return;
+
+        if (IsComplete)
+        {
+            progressText.text = "Trash done!";
+            progressText.color = Color.green;
+        }
+        else
+        {
+            progressText.text = $"Trash {score}/2";
+            progressText.color = Color.white;
+        }
     }
 
     // check if the task is completed

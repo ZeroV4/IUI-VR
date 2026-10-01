@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables; // XRGrabInteractable
+using TMPro;
 
 public class CoffeeTask : MonoBehaviour
 {
@@ -24,6 +25,9 @@ public class CoffeeTask : MonoBehaviour
     [Header("Completion")]
     public float requiredSeconds = 0.3f;    // time hitting cup to complete
     public bool IsComplete { get; private set; }
+
+    // usability: text next to the cup that shows how full it is
+    public TMP_Text fillText;
 
     // State
     float pouringSeconds;
@@ -59,11 +63,29 @@ public class CoffeeTask : MonoBehaviour
                 IsComplete = true;
                 SetParticles(false);
                 Debug.Log("Coffee task COMPLETE");
+                // usability: sound when the cup is full, you could not tell when to stop pouring
+                GetComponent<AudioSource>().Play();
             }
+            ShowFill();
+        }
+        // usability: we dont empty the cup anymore when the stream misses it for a moment, you keep what you poured
+    }
+
+    // usability: shows 0 to 100 percent while pouring, the coffee reset button calls this too so it goes back to 0
+    public void ShowFill()
+    {
+        if (!fillText) return;
+
+        if (IsComplete)
+        {
+            fillText.text = "Coffee ready!";
+            fillText.color = Color.green;
         }
         else
         {
-            pouringSeconds = 0f;
+            int percent = Mathf.Min(100, Mathf.RoundToInt(pouringSeconds / requiredSeconds * 100f));
+            fillText.text = $"Coffee {percent}%";
+            fillText.color = Color.white;
         }
     }
 
@@ -106,7 +128,9 @@ public class CoffeeTask : MonoBehaviour
     bool RayHitsCupMouth()
     {
         if (!cupMouth) return false;
-        Vector3 dir = StreamDir();
+        // usability: the coffee falls straight down so we check straight down too
+        // the spout direction could touch the cup from the side, so tilting or jerking the pot filled it without coffee going in
+        Vector3 dir = Vector3.down;
         Vector3 origin = spoutTip.position + dir * 0.01f; // avoid hitting our own pot
         return Physics.Raycast(origin, dir, out var hit, rayDistance, ~0, QueryTriggerInteraction.Collide)
                && hit.collider == cupMouth;

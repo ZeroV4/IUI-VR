@@ -55,7 +55,11 @@ public class DrawerTask : MonoBehaviour
         {
             var fi = selected.GetComponent<FileItem>();
             if (!fi || fi.fileType != expectedType)
+            {
                 wrongInserts++;
+                // usability: error sound so you notice the file went in the wrong drawer
+                GetComponent<AudioSource>().Play();
+            }
         }
 
         Recompute();

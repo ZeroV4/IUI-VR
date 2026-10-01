@@ -37,11 +37,43 @@ public class RunSummaryOnQuit : MonoBehaviour
     [Header("Behavior")]
     public float delaySeconds = 10f;           // countdown before quit
 
+    // usability: quit needs a second press so one stray click does not end the whole run
+    [Header("Quit confirmation")]
+    public TMP_Text quitButtonLabel;           // the text on the Quit button
+    public float confirmSeconds = 3f;          // time you have for the second press
+
     string _path;
+    float confirmUntil = -1f;
+    string quitLabelDefault;
 
     void Awake()
     {
         _path = Path.Combine(Application.persistentDataPath, fileName);
+        // usability: remember the normal label so we can put it back
+        if (quitButtonLabel) quitLabelDefault = quitButtonLabel.text;
+    }
+
+    // usability: put this on the quit button. first press asks, second press within confirmSeconds quits
+    public void ConfirmThenQuit()
+    {
+        if (Time.unscaledTime <= confirmUntil)
+        {
+            CancelInvoke(nameof(EndConfirmWindow));
+            ShowSummaryThenQuit();
+            return;
+        }
+
+        confirmUntil = Time.unscaledTime + confirmSeconds;
+        if (quitButtonLabel) quitButtonLabel.text = "Press again\nto quit";
+
+        CancelInvoke(nameof(EndConfirmWindow));
+        Invoke(nameof(EndConfirmWindow), confirmSeconds);
+    }
+
+    // usability: you did not press again so the normal label comes back
+    void EndConfirmWindow()
+    {
+        if (quitButtonLabel) quitButtonLabel.text = quitLabelDefault;
     }
 
     /// Call this from Quit button
