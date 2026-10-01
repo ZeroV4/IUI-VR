@@ -1,0 +1,28 @@
+{
+  "buildFiles": [
+    "/home/zero/Workspace/UNI/IUI/IUI_HCI_VR_Lab-main/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/CMakeLists.txt",
+    "/home/zero/Workspace/UNI/IUI/IUI_HCI_VR_Lab-main/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp/GameActivity/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/zero/Unity/Hub/Editor/6000.0.51f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/zero/Workspace/UNI/IUI/IUI_HCI_VR_Lab-main/.utmp/RelWithDebInfo/273c5e5a/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/zero/Unity/Hub/Editor/6000.0.51f1/Editor/Data/PlaybackEngines/AndroidPlayer/SDK/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/zero/Workspace/UNI/IUI/IUI_HCI_VR_Lab-main/.utmp/RelWithDebInfo/273c5e5a/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "game::@d02bb112ea9f9c2ed29f": {
+      "artifactName": "game",
+      "abi": "arm64-v8a",
+      "output": "/home/zero/Workspace/UNI/IUI/IUI_HCI_VR_Lab-main/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/273c5e5a/obj/arm64-v8a/libgame.so",
+      "runtimeFiles": []
+    }
+  }
+}

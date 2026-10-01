@@ -50,6 +50,29 @@ public static class UsabilitySceneSetup
         text.transform.parent.localScale = Vector3.one;
 
         cleaning.progressText = text;
+
+        // brown spot on each zone, like GameObject > 3D Object > Cylinder dragged under the zone
+        var dirtMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/_Lab4Assets/Cleaning/DirtMark.mat");
+        cleaning.dirtSpots = new GameObject[cleaning.targets.Length];
+        for (int i = 0; i < cleaning.targets.Length; i++)
+        {
+            var zone = cleaning.targets[i].transform;
+            var dirt = zone.Find("Dirt");
+            if (!dirt)
+            {
+                dirt = GameObject.CreatePrimitive(PrimitiveType.Cylinder).transform;
+                dirt.name = "Dirt";
+                dirt.SetParent(zone, false);
+                // no collider, the sponge has to touch the zone and not bump into the dirt
+                Object.DestroyImmediate(dirt.GetComponent<Collider>());
+            }
+            dirt.localPosition = new Vector3(0f, 0.008f, 0f);
+            dirt.localRotation = Quaternion.identity;
+            dirt.localScale = new Vector3(0.16f, 0.001f, 0.16f);
+            dirt.GetComponent<Renderer>().sharedMaterial = dirtMaterial;
+            dirt.gameObject.SetActive(true);
+            cleaning.dirtSpots[i] = dirt.gameObject;
+        }
         EditorUtility.SetDirty(cleaning);
     }
 
@@ -78,9 +101,37 @@ public static class UsabilitySceneSetup
     {
         coffee.angleOnDeg = 45;
         coffee.angleOffDeg = 60;
-        EditorUtility.SetDirty(coffee);
+        // 0.3 seconds filled the cup in a blink, 2 seconds gives the percent time to count up
+        coffee.requiredSeconds = 2f;
 
         AddSound(coffee.gameObject, PopClip, 1f);
+
+        // the coffee fell through the cup and the desk
+        // triggers module: a drop disappears when it reaches the cup opening
+        var triggers = coffee.pourParticles.trigger;
+        triggers.enabled = true;
+        if (triggers.colliderCount == 0) triggers.AddCollider(coffee.cupMouth);
+        triggers.enter = ParticleSystemOverlapAction.Kill;
+        triggers.inside = ParticleSystemOverlapAction.Kill;
+        triggers.outside = ParticleSystemOverlapAction.Ignore;
+        // collision module: drops that miss stop on the desk or floor
+        // dynamic colliders off so the moving pot and cup are ignored, the spout sits inside the pot collider
+        var collision = coffee.pourParticles.collision;
+        collision.enabled = true;
+        collision.type = ParticleSystemCollisionType.World;
+        collision.mode = ParticleSystemCollisionMode.Collision3D;
+        collision.lifetimeLoss = 1f;
+        collision.enableDynamicColliders = false;
+        EditorUtility.SetDirty(coffee.pourParticles);
+
+        // same spot as the first coffee text, above the cup
+        var text = WorldText(coffee.transform, "CoffeeFill", new Vector2(0.24f, 0.06f), "Coffee 0%", Color.white);
+        text.transform.parent.localPosition = new Vector3(-0.14374432f, 0.046901643f, -0.79824466f);
+        text.transform.parent.localRotation = new Quaternion(0.065466516f, 0.9330348f, -0.27602315f, 0.22129494f);
+        text.transform.parent.localScale = Vector3.one;
+
+        coffee.fillText = text;
+        EditorUtility.SetDirty(coffee);
     }
 
     static void SetupTrash(TrashBinScorer trash)
@@ -202,6 +253,8 @@ public static class UsabilitySceneSetup
 
             if (i == 1 && !HasListener(button.onClick, tracker.trashTask, "ResetScore"))
                 UnityEventTools.AddPersistentListener(button.onClick, tracker.trashTask.ResetScore);
+            if (i == 2 && !HasListener(button.onClick, tracker.coffeeTask, "ShowFill"))
+                UnityEventTools.AddPersistentListener(button.onClick, tracker.coffeeTask.ShowFill);
             if (i == 3 && !HasListener(button.onClick, tracker.cleaningTask, "ResetProgress"))
                 UnityEventTools.AddPersistentListener(button.onClick, tracker.cleaningTask.ResetProgress);
             if (!HasListener(button.onClick, resetFeedback, "Show"))

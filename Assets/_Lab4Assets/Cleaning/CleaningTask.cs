@@ -22,6 +22,9 @@ public class CleaningTask : MonoBehaviour
     // usability: text above the desk that shows how many spots are clean
     public TMP_Text progressText;
 
+    // usability: brown dirt spot on each zone, same order as targets, it disappears when you clean it
+    public GameObject[] dirtSpots;
+
     // Internal fields
     private bool[] touched;
     private int touchedCount;
@@ -57,6 +60,7 @@ public class CleaningTask : MonoBehaviour
                 touchedCount++;
                 // usability: sound when a spot gets cleaned so you know it counted
                 GetComponent<AudioSource>().Play();
+                if (i < dirtSpots.Length) dirtSpots[i].SetActive(false);
                 Debug.Log("Touched a cleaning spot");
 
                 if (touchedCount == targets.Length)
@@ -74,7 +78,11 @@ public class CleaningTask : MonoBehaviour
     public void ResetProgress()
     {
         for (int i = 0; i < touched.Length; i++)
+        {
             touched[i] = false;
+            // usability: bring the dirt back so you can clean again
+            if (i < dirtSpots.Length) dirtSpots[i].SetActive(true);
+        }
         touchedCount = 0;
         cleaningTask = (touched.Length == 0);
         ShowProgress();
